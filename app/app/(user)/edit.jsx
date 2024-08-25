@@ -33,7 +33,7 @@ const Edit = () => {
                 Alert.alert('Profile Image', 'Selecting image for profile canceled.');
             }, 100);
         }
-    };
+    }
 
     const updateUser = async () => {
         try {
@@ -41,9 +41,9 @@ const Edit = () => {
             if(shouldStop) throw new Error('Empy Fields');
             
             const form = new FormData();
-            for(const [key, value] of Object.entries(userData)) {
-                form.append(key, value);
-            }
+            form.append('firstname', TitleFormat(userData?.firstname));
+            form.append('lastname', TitleFormat(userData?.lastname));
+            form.append('email', userData?.email);
             
             if(newProfile?.uri) {
                 form.append('file', newProfile);
@@ -67,7 +67,7 @@ const Edit = () => {
     const getUserData = async () => {
         try {
             const details = await getFromLocal('user');
-            setUserData(details);
+            if(Object.values(details).length > 0) setUserData(details);
         } catch(error) {
             console.log(error);
         }
@@ -78,9 +78,9 @@ const Edit = () => {
     }, []);
 
     return (
-        <SafeAreaView className="size-full">
-            <ScrollView contentContainerStyle={{height: '100%'}}>
-                <View className="size-full px-8">
+        <SafeAreaView>
+            <ScrollView>
+                <View className="size-full px-8 min-h-screen">
                     <View className="w-full h-[10%] flex justify-center">
                         <Link href="(tabs)/profile">
                             <View className="flex flex-row justify-center items-center">

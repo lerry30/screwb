@@ -5,4 +5,5 @@ export const urls = {
     signin: `${serverDomain}/api/users/auth`,
     profileimage: `${serverDomain}/api/users/profileimage`,
     updateprofile: `${serverDomain}/api/users/profile`,
+    createpost: `${serverDomain}/api/posts/create`,
 }

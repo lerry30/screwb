@@ -5,8 +5,9 @@ import connectDB from './config/db.js';
 //import cors from 'cors';
 
 import userRoutes from './routes/userRoutes.js';
+import postRoutes from './routes/postRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-import { getDir, getFileExt } from './utils/fileDir.js';
+import { getDir } from './utils/fileDir.js';
 
 dotenv.config();
 const app = express();
@@ -19,11 +20,13 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/profiles', express.static(getDir('uploads/profiles')));
+app.use('/videos', express.static(getDir('uploads/videos')))
 //app.use(cookieParser());
 //app.use(cors({ origin: true, credentials: true }));
 
 // router
 app.use('/api/users', userRoutes);
+app.use('/api/posts', postRoutes);
 
 // fall back when route is not found
 app.use(notFound);

@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const TabLayout = () => {
     return (
@@ -12,7 +13,8 @@ const TabLayout = () => {
             tabBarInactiveTintColor: '#CDCDE0',
             tabBarStyle: {
                 backgroundColor: '#161622',
-                height: 64,
+                height: 68,
+                paddingTop: 4,
                 paddingBottom: 8,
             }
         }}>
@@ -22,6 +24,15 @@ const TabLayout = () => {
                     tabBarLabel: ({color}) => <Text className="font-pbold text-[12px]" style={{color: `${color}`}}>Home</Text>,
                     tabBarIcon: ({color}) => (
                         <Ionicons name="home-sharp" size={24} color={color} />
+                    )
+                }}
+            />
+            <Tabs.Screen
+                name="create"
+                options={{
+                    tabBarLabel: ({color}) => <Text className="font-pbold text-[12px]" style={{color: `${color}`}}></Text>,
+                    tabBarIcon: ({color}) => (
+                        <AntDesign name="pluscircleo" size={38} color={color} />
                     )
                 }}
             />

@@ -54,9 +54,9 @@ const SignUp = () => {
     }
 
     return (
-        <SafeAreaView className="flex-1 size-screen">
-           <ScrollView contentContainerStyle={{height: '100%'}}>
-                <View className="flex-1 size-screen flex flex-col justify-center items-center p-8">
+        <SafeAreaView>
+           <ScrollView>
+                <View className="flex-1 size-screen min-h-screen flex flex-col justify-center items-center p-8">
                     <Text className="text-secondary font-pbold text-3xl pb-4">Signup</Text>
                     <FormField
                         title="First Name"

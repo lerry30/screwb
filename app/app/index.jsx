@@ -12,8 +12,8 @@ const HomePage = () => {
 
     return (
         <SafeAreaView>
-            <ScrollView contentContainerStyle={{height: '100%'}}>
-                <View className="relative flex-1 size-screen">
+            <ScrollView>
+                <View className="relative flex-1 size-screen min-h-screen">
                     {/*<Video 
                         source={BackgroundVideo}
                         className="absolute flex-1 size-screen top-0 left-0 bottom-0 right-0"
