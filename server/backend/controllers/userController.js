@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
-import User from '../Models/userModel.js'
+import User from '../Models/userModel.js';
+import Post from '../Models/postModel.js';
 
 import generateToken from '../utils/generateToken.js';
 import { removePreviousFile } from '../utils/postUpload.js';
@@ -16,6 +17,9 @@ const authUser = asyncHandler(async (req, res) => {
     if(user && (await user.matchPassword(password))) {
         const token = generateToken(res, user._id);
 
+        // I decided to include user posts in this payload
+        const posts = await Post.find({userId: user._id}).sort({createdAt: -1});
+
         res.status(201).json({
             id: user._id,
             token: token,
@@ -23,6 +27,7 @@ const authUser = asyncHandler(async (req, res) => {
             lastname: user.lastname,
             email: user.email,
             profileimage: user.profileimage,
+            posts: posts
         });
     } else {
         res.status(401);
