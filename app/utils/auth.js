@@ -22,11 +22,12 @@ export const authUser = async ({ userData, setError, callback, url }) => {
         const shouldStop = authUserInput(userData, setError);
         if(shouldStop) throw new Error('Empty Fields');
         
-        const response = await sendJSON(url, userData);
+        const response = await sendJSON(url, userData, 'POST');
         if(Object.values(response).length > 0) callback(response);
     } catch(error) {
-        console.log(error);
-        const nError = handleError(error);
-        setError(data => ({ ...data, ...nError}));
+        const message = error?.message || 'There\'s something wrong.';
+        console.log(error?.cause, message);
+        //const nError = handleError(error);
+        setError(data => ({...data, server: message}));
     }
 }
