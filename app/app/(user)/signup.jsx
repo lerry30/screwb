@@ -1,10 +1,11 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 import { useRouter, Link } from 'expo-router';
 import { authUser } from '@/utils/auth';
 import { urls } from '@/constants/urls';
 import { saveToLocal } from '@/utils/localStorage';
+import { zUser } from '@/store/user';
 
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
@@ -14,14 +15,18 @@ import TitleFormat from '@/utils/titleFormat';
 const SignUp = () => {
     const [userData, setUserData] = useState({ firstname: '', lastname: '', email: '', password: '' });
     const [error, setError] = useState({ firstname: '', lastname: '', email: '', password: '', server: '' });
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
+    const saveUser = zUser(state => state.setUser);
+
     const createUser = async () => {
+        setLoading(true);
         setError({ firstname: '', lastname: '', email: '', password: '' });
 
         const success = async (response) => {
             try {
-                const nData = {
+                const nUser = {
                     id: response?.id,
                     firstname: response?.firstname || '',
                     lastname: response?.lastname || '',
@@ -29,8 +34,9 @@ const SignUp = () => {
                     profileimage: response?.profileimage || ''
                 }
 
-                if(!nData?.id || !nData?.email) throw new Error('User Credentials Undefined');
-                await saveToLocal('user', nData);
+                if(!nUser?.id || !nUser?.email) throw new Error('User Credentials Undefined');
+                await saveToLocal('user', nUser);
+                saveUser(nUser);
 
                 setUserData({ firstname: '', lastname: '', email: '', password: '' });
                 router.push('/(tabs)/home');
@@ -51,6 +57,15 @@ const SignUp = () => {
         });
 
         setUserData({ ...userData, password: '' });
+        setLoading(false);
+    }
+
+    if(loading) {
+        return (
+            <View className="flex-1 w-full h-screen flex justify-center items-center">
+                <ActivityIndicator size="large" color="#3345ee" />
+            </View>
+        )
     }
 
     return (
