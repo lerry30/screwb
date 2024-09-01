@@ -1,10 +1,12 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 import { useRouter, Link } from 'expo-router';
 import { authUser } from '@/utils/auth';
 import { urls } from '@/constants/urls';
-import { saveToLocal } from '@/utils/localStorage'
+import { saveToLocal } from '@/utils/localStorage';
+import { zUser } from '@/store/user';
+import { zPosts } from '@/store/posts';
 
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
@@ -12,24 +14,37 @@ import ErrorField from '@/components/ErrorField';
 
 const LogIn = () => {
     const [userData, setUserData] = useState({ email: '', password: '' });
-    const [error, setError] = useState({ email: '', password: '' });
+    const [error, setError] = useState({ email: '', password: '', server: '' });
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
+    const saveUser = zUser(state => state.setUser);
+    const savePosts = zPosts(state => state.setPosts);
+
     const login = async () => {
+        setLoading(true);
         setError({ email: '', password: '' });
 
         const success = async (response) => {
             try {
-                const nData = {
+                const nUser = {
                     id: response?.id,
                     firstname: response?.firstname || '',
                     lastname: response?.lastname || '',
                     email: response?.email,
-                    profileimage: response?.profileimage || ''
+                    profileimage: response?.profileimage || '',
                 }
 
-                if(!nData?.id || !nData?.email) throw new Error('User Credentials Undefined');
-                await saveToLocal('user', nData);
+                if(!nUser?.id || !nUser?.email) throw new Error('User Credentials Undefined');
+                await saveToLocal('user', nUser);
+
+                // save user posts
+                const posts = response?.posts;
+                const nPosts = posts.map(post => ({id: post?._id, title: post?.title, description: post?.description, video: post?.video    }));
+                await saveToLocal('posts', nPosts);
+
+                saveUser(nUser);
+                savePosts(nPosts);
 
                 setUserData({ email: '', password: '' });
                 router.push('/(tabs)/home');
@@ -46,6 +61,15 @@ const LogIn = () => {
         });
 
         setUserData({ email: userData?.email, password: '' });
+        setLoading(false);
+    }
+
+    if(loading) {
+        return (
+            <View className="flex-1 w-full h-screen flex justify-center items-center">
+                <ActivityIndicator size="large" color="#3345ee" />
+            </View>
+        )
     }
 
     return (
