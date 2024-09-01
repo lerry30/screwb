@@ -6,6 +6,8 @@ import connectDB from './config/db.js';
 
 import userRoutes from './routes/userRoutes.js';
 import postRoutes from './routes/postRoutes.js';
+import videoRoutes from './routes/videoRoutes.js';
+import feedbackRoutes from './routes/feedbackRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import { getDir } from './utils/fileDir.js';
 
@@ -27,6 +29,8 @@ app.use('/videos', express.static(getDir('uploads/videos')))
 // router
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/videos', videoRoutes);
+app.use('/feedback', feedbackRoutes);
 
 // fall back when route is not found
 app.use(notFound);
