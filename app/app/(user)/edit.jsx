@@ -1,28 +1,41 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
 import { useState, useLayoutEffect } from 'react';
 import { getFromLocal, saveToLocal } from '@/utils/localStorage';
 import { serverDomain, urls } from '@/constants/urls';
 import { authUserInput } from '@/utils/auth';
-import { sendFormUpdate } from '@/utils/send';
+import { sendForm } from '@/utils/send';
+import { zUser } from '@/store/user';
 
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
 import ErrorField from '@/components/ErrorField';
+import CustomAlert from '@/components/CustomAlert';
 import TitleFormat from '@/utils/titleFormat';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as DocumentPicker from 'expo-document-picker';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 const Edit = () => {
-    const [userData, setUserData] = useState({ firstname: '', lastname: '', email: '' });
+    const [userData, setUserData] = useState({ firstname: '', lastname: '', email: '', profileimage: '' });
     const [newProfile, setNewProfile] = useState({uri: '', name: '', type: ''});
     const [error, setError] = useState({ firstname: '', lastname: '', email: '', server: '' });
+    const [loading, setLoading] = useState(false);
+    const [alert, setAlert] = useState(false);
+
+    const user = zUser(state => ({
+        firstname: state.firstname,
+        lastname: state.lastname,
+        email: state.email,
+        profileimage: state.profileimage
+    }));
+    const saveUser = zUser(state => state.setUser);
 
     const router = useRouter();
 
     const openImagePicker = async () => {
+        setLoading(true);
         const result = await DocumentPicker.getDocumentAsync({type: ['image/png', 'image/jpg', 'image/jpeg']});
         if (!result.canceled) {
             //console.log(result.assets[0]);
@@ -30,13 +43,15 @@ const Edit = () => {
             setNewProfile({ name, uri, type: mimeType });
         } else {
             setTimeout(() => {
-                Alert.alert('Profile Image', 'Selecting image for profile canceled.');
+                setAlert(true);
             }, 100);
         }
+        setLoading(false);
     }
 
     const updateUser = async () => {
         try {
+            setLoading(true);
             const shouldStop = authUserInput(userData, setError, ['profileimage']);
             if(shouldStop) throw new Error('Empy Fields');
             
@@ -48,38 +63,45 @@ const Edit = () => {
             if(newProfile?.uri) {
                 form.append('file', newProfile);
             }
-
-            const { id, firstname, lastname, email, profileimage } = await sendFormUpdate(urls['updateprofile'], form);
-            if(id && firstname && lastname && email && profileimage) {
-                await saveToLocal('user', {id, firstname, lastname, email, profileimage});
+            
+            const response = await sendForm(urls['updateprofile'], form, 'PUT');
+            const { id, firstname, lastname, email } = response;
+            if(id && firstname && lastname && email) {
+                await saveToLocal('user', response);
+                saveUser(response);
                 Alert.alert('Success', 'Successfully updated');
                 setTimeout(() => {
                     router.push('(tabs)/profile');
                 }, 2000);
             }
         } catch(error) {
-            console.log(typeof error, error?.cause, ' <-');
+            console.log(error?.message);
             //setError({...error, server: error});
             Alert.alert('Oops', 'There\'s a problem right now. Please try again later.');
         }
-    }
 
-    const getUserData = async () => {
-        try {
-            const details = await getFromLocal('user');
-            if(Object.values(details).length > 0) setUserData(details);
-        } catch(error) {
-            console.log(error);
-        }
+        setLoading(false);
     }
 
     useLayoutEffect(() => {
-        getUserData();
+        const {firstname, lastname, email} = user;
+        if(firstname && lastname && email) {
+            setUserData(user);
+        }
     }, []);
+
+    if(loading) {
+        return (
+            <View className="flex-1 w-full h-screen flex justify-center items-center">
+                <ActivityIndicator size="large" color="#3345ee" />
+            </View>
+        )
+    }
 
     return (
         <SafeAreaView>
             <ScrollView>
+                {alert && <CustomAlert visible={alert} onClose={()=>setAlert(false)} title="Profile Image" message="Selecting image for profile canceled." />}
                 <View className="size-full px-8 min-h-screen">
                     <View className="w-full h-[10%] flex justify-center">
                         <Link href="(tabs)/profile">
@@ -93,8 +115,7 @@ const Edit = () => {
                         <TouchableOpacity
                             activeOpacity={0.4}
                             onPress={() => openImagePicker()}
-                            className="max-w-[150px] max-h-[150px] rounded-full overflow-hidden"
-                        >
+                            className="max-w-[150px] max-h-[150px] rounded-full overflow-hidden">
                             {
                                 newProfile?.uri ?
                                     <Image className="w-[150px] h-[150px]" source={{uri: newProfile.uri}} resizeMode="cover" />
