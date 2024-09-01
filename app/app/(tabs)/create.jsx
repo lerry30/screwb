@@ -1,18 +1,21 @@
-import { Text, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { Text, View, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useState, useLayoutEffect } from 'react';
 import { Video, ResizeMode } from 'expo-av';
 import { authUserInput } from '@/utils/auth';
 import { sendForm } from '@/utils/send';
 import { urls } from '@/constants/urls';
 import { getFromLocal, saveToLocal } from '@/utils/localStorage';
 import { useRouter } from 'expo-router';
+import { zUser } from '@/store/user';
+import { zPosts } from '@/store/posts';
 
 import TitleFormat from '@/utils/titleFormat';
 import ErrorField from '@/components/ErrorField';
 import FormField from '@/components/FormField';
 import FormTextArea from '@/components/FormTextArea';
 import CustomButton from '@/components/CustomButton';
+import CustomAlert from '@/components/CustomAlert';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as DocumentPicker from 'expo-document-picker';
 
@@ -22,8 +25,12 @@ const Create = () => {
     const [video, setVideo] = useState({ name: '', uri: '', type: '' });
 
     const [error, setError] = useState({title: '', description: '', server: ''});
+    const [loading, setLoading] = useState(false);
+    const [alert, setAlert] = useState(false);
 
     const router = useRouter();
+    const postsData = zPosts(state => state.data);
+    const addNewPost = zPosts(state => state.add);
 
     const upload = async () => {
         const result = await DocumentPicker.getDocumentAsync({type: 'video/*'});
@@ -33,13 +40,14 @@ const Create = () => {
             setVideo({ name, uri, type: mimeType });
         } else {
             setTimeout(() => {
-                Alert.alert('Upload Video', 'Video Selection Canceled.');
+                setAlert(true);
             }, 100);
         }
     }
 
     const create = async () => {
         try {
+            setLoading(true);
             setError({title: '', description: '', server: ''});
 
             authUserInput({
@@ -48,8 +56,8 @@ const Create = () => {
                 video: video?.uri
             }, setError);
 
-            if(title.length > 20) throw new Error('Title is too long.');
-            if(description.length > 50) throw new Error('Title is too long.');
+            if(title.length > 30) throw new Error('Title is too long.');
+            if(description.length > 80) throw new Error('Title is too long.');
             if(!video?.uri) throw new Error('No video selected.');
 
             const form = new FormData();
@@ -57,27 +65,44 @@ const Create = () => {
             form.append('description', TitleFormat(description));
             form.append('file', video);
 
-            const response = await sendForm(urls['createpost'], form); 
-            const posts = await getFromLocal('posts') || [];
-            posts.push(response);
-            await saveToLocal('posts', posts);
+            const response = await sendForm(urls['createpost'], form, 'POST'); 
+            await saveToLocal('posts', [...postsData, response]);
+            const {ok, message} = addNewPost(response);
+            console.log(message);
             setTimeout(() => {
                 router.push('(tabs)/profile');
             }, 100);
+
+            setTitle('');
+            setDescription('');
+            setVideo({ name: '', uri: '', type: '' });
         } catch(error) {
             console.log(error?.message);
             const message = error?.message || 'There\'s something wrong. Please try again later.';
             setError(errorData => ({...errorData, server: message}));
         }
 
-        setTitle('');
-        setDescription('');
-        setVideo({ name: '', uri: '', type: '' });
+        setLoading(false);
+    }
+
+    if(!zUser.getState().email) return (
+        <View className="flex-1 w-full h-full px-8 flex justify-center items-center">
+            <CustomButton title="Log in" onPress={() => router.push('(user)/login')} contClassName="w-full my-auto px-8" />
+        </View>
+    )
+
+    if(loading) {
+        return (
+            <View className="flex-1 w-full h-screen flex justify-center items-center">
+                <ActivityIndicator size="large" color="#3345ee" />
+            </View>
+        )
     }
 
     return (
         <SafeAreaView>
             <ScrollView>
+                {alert && <CustomAlert visible={alert} onClose={()=>setAlert(false)} title="Upload Video" message="Video Selection Canceled" />}
                 <View className="size-full min-h-screen p-4">
                     <Text className="text-secondary font-pbold text-xl pb-4">Upload</Text> 
                     <FormField
