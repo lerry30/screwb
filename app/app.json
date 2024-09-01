@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "screwb02",
-    "slug": "screwb02",
+    "name": "screwb",
+    "slug": "screwb",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
