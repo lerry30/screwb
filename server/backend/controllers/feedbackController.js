@@ -26,18 +26,24 @@ const giveFeedback = asyncHandler(async (req, res) => {
     let nFeedback = null;
     if(saveFeedback) {
         const saveUserReaction = await UserReaction.findOne({userId, postId});
-        const reactions = saveUserReaction.reactions;
-        if(reactions.includes(feedback)) {
-            const newList = saveUserReaction.reactions.filter(act => act !== feedback);
-            const noOfFeedback = Math.max(toNumber(saveFeedback[feedback])-1, 0);
-            saveUserReaction.reactions = newList; 
-            saveFeedback[feedback] = noOfFeedback;
-        } else {
-            saveUserReaction.reactions.push(feedback);
+        if(!saveUserReaction) {
+            await UserReaction.create({userId, postId, reactions: [feedback]});
             saveFeedback[feedback] = toNumber(saveFeedback[feedback])+1;
+        } else {
+            const reactions = saveUserReaction.reactions;
+            if(reactions.includes(feedback)) {
+                const newList = saveUserReaction.reactions.filter(act => act !== feedback);
+                const noOfFeedback = Math.max(toNumber(saveFeedback[feedback])-1, 0);
+                saveUserReaction.reactions = newList; 
+                saveFeedback[feedback] = noOfFeedback;
+            } else {
+                saveUserReaction.reactions.push(feedback);
+                saveFeedback[feedback] = toNumber(saveFeedback[feedback])+1;
+            }
+
+            await saveUserReaction.save();
         }
 
-        await saveUserReaction.save();
         nFeedback = await saveFeedback.save();
     } else {
         nFeedback = await Feedback.create({postId, [feedback]: 1});
