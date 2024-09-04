@@ -30,7 +30,7 @@ app.use('/videos', express.static(getDir('uploads/videos')))
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/videos', videoRoutes);
-app.use('/feedback', feedbackRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // fall back when route is not found
 app.use(notFound);
