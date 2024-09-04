@@ -1,4 +1,4 @@
-export const serverDomain = 'http://192.168.0.107:3000';
+export const serverDomain = 'http://192.168.0.104:3000';
 
 export const urls = {
     signup: `${serverDomain}/api/users`,
@@ -7,7 +7,8 @@ export const urls = {
     updateprofile: `${serverDomain}/api/users/profile`,
     createpost: `${serverDomain}/api/posts/create`,
     getvideos: `${serverDomain}/api/videos`,
-    feedback: `${serverDomain}/feedback`,
-    reactions: `${serverDomain}/feedback/user`,
-    postreactions: `${serverDomain}/feedback/post`,
+    feedback: `${serverDomain}/api/feedback`,
+    reactions: `${serverDomain}/api/feedback/user`,
+    postreactions: `${serverDomain}/api/feedback/post`,
+    search: `${serverDomain}/api/videos/search`,
 }
