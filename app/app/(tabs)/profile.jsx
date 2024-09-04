@@ -17,6 +17,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import CustomButton from '@/components/CustomButton';
 import Background from '@/components/Background';
 import CustomAlert from '@/components/CustomAlert';
+import CreatePost from '@/assets/create-new-post.png';
 
 const Profile = () => { 
     const [videos, setVideos] = useState([]);
@@ -149,7 +150,7 @@ const Profile = () => {
         const isVisible = visibleItems.includes(index);
         if(!isVisible) {
             return (
-                <View className="relative w-full h-[520px] bg-gray-900/50 rounded-2xl overflow-hidden flex justify-center items-center">
+                <View key={index} className="relative w-full h-[520px] bg-gray-900/50 rounded-2xl overflow-hidden flex justify-center items-center">
                     <ActivityIndicator size="large" color="#3345ee" />
                     <Text className="text-lg text-gray-100 font-pbold mt-4">Loading...</Text>
                 </View>
@@ -234,10 +235,14 @@ const Profile = () => {
                     viewabilityConfig={{ itemVisiblePercentThreshold: 80 }}
                     renderItem={renderItem}
                     ListFooterComponent={() => (
-                        <CustomButton title="Log out" onPress={() => logout()} contClassName="w-full mt-4" />
+                        <CustomButton title="Log out" onPress={() => logout()} contClassName="w-full mt-4 bg-red-500" />
                     )}
                     ListEmptyComponent={() => (
-                        <Text></Text>
+                        <View className="w-full h-[70vh] flex-1 flex justify-center items-center">
+                            <Image className="w-1/2 h-[50vw]" source={CreatePost} resizeMode="contain" />
+                            <Text className="text-white text-lg font-pbold">No posts yet. Create one now.</Text>
+                            <CustomButton title="Create a new post" onPress={() => router.push('/(tabs)/create')} contClassName="px-4 mt-[40px]" />
+                        </View>
                     )}
                 />
             </View> 
