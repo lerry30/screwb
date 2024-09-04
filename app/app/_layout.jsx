@@ -43,6 +43,8 @@ export default function RootLayout() {
                 <Stack.Screen name="(user)/login" options={{ headerShown: false }} />
                 <Stack.Screen name="(user)/edit" options={{ headerShown: false }} />
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="search/searchinput" options={{ headerShown: false }} />
+                <Stack.Screen name="search/[query]" options={{ headerShown: false }} />
                 <Stack.Screen name="+not-found" />
             </Stack>
             <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark' } />
