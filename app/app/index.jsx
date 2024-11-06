@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Video, ResizeMode } from 'expo-av'
+//import { Video, ResizeMode } from 'expo-av'
 import { useRouter } from 'expo-router';
 import { getFromLocal } from '@/utils/localStorage';
 import { useLayoutEffect } from 'react';
@@ -40,7 +40,7 @@ const HomePage = () => {
         <SafeAreaView>
             <ScrollView>
                 <View className="relative flex-1 size-screen min-h-screen">
-                    <Video 
+ {/*                   <Video 
                         source={BackgroundVideo}
                         className="absolute flex-1 size-screen top-0 left-0 bottom-0 right-0"
                         resizeMode={ResizeMode.COVER}
@@ -48,7 +48,7 @@ const HomePage = () => {
                         isLooping
                         isMuted
                     />
-
+*/}
                     <Background style={{position: 'absolute', top: 0, bottom: 0, left: 0, right: 0}}>
                         <View className="flex-1 size-screen p-8 flex justify-center items-center space-y-[40px]">
                             <Image className="h-[70px]" source={AppLogo} resizeMode="contain" />

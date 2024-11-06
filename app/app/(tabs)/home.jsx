@@ -54,7 +54,7 @@ const Home = () => {
     useLayoutEffect(() => {
         getVideos();
         return () => {
-            videoRefs.current = {};
+            videoRefs.current = null;
         }
     }, []);
 

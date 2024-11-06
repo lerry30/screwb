@@ -1,0 +1,30 @@
+services:
+  screwb-01:
+    image: backend:latest   # Use the locally built image
+    volumes:
+      - ./backend/uploads:/usr/src/app/backend/uploads 
+    ports:
+      - "1111:3000"
+    env_file:
+      - /etc/app.env
+    command: ["npm", "run", "start"]
+
+  screwb-02:
+    image: backend:latest   # Use the same image for this service
+    volumes:
+      - ./backend/uploads:/usr/src/app/backend/uploads 
+    ports:
+      - "2222:3000"
+    env_file:
+      - /etc/app.env
+    command: ["npm", "run", "start"]
+
+  screwb-03:
+    image: backend:latest   # Use the same image for this service
+    volumes:
+      - ./backend/uploads:/usr/src/app/backend/uploads 
+    ports:
+      - "3333:3000"
+    env_file:
+      - /etc/app.env
+    command: ["npm", "run", "start"]

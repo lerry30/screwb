@@ -19,12 +19,17 @@ const port = process.env.PORT || 3000;
 connectDB();
 
 // in order to use req.body
-app.use(express.json());
+app.use(express.json({limit: '10mb'}));
 app.use(express.urlencoded({ extended: true }));
 app.use('/profiles', express.static(getDir('uploads/profiles')));
 app.use('/videos', express.static(getDir('uploads/videos')))
-//app.use(cookieParser());
-//app.use(cors({ origin: true, credentials: true }));
+// Allow all origins for development
+//app.use(cors({
+//    origin: true,   // Allow any origin (or replace with your specific origin in production)
+//    credentials: true,  // Allow cookies or other credentials to be sent
+//    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allow specific methods
+//    allowedHeaders: ['Content-Type', 'Authorization']  // Allow specific headers
+//}));
 
 // router
 app.use('/api/users', userRoutes);
@@ -36,4 +41,4 @@ app.use('/api/feedback', feedbackRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(port, () => console.log(`Server started on port ${port}`));
+app.listen(port, () => console.log(`Screwb server is running on port ${port}`));

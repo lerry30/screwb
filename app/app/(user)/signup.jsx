@@ -41,7 +41,7 @@ const SignUp = () => {
                 setUserData({ firstname: '', lastname: '', email: '', password: '' });
                 router.push('/(tabs)/home');
             } catch(error) {
-                console.log(error);
+                console.log(error?.message);
             }
         }
 

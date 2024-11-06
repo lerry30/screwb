@@ -18,8 +18,8 @@ const router = express.Router();
     router.post('/', registerUser);
     router.post('/auth', authUser);
     router.post('/logout', logoutUser);
-    router.put('/profile', uploadMiddleware.single('file'), protect, updateUserProfile);
-    router.put('/profileimage', uploadMiddleware.single('file'), protect, uploadUserProfileImage);
+    router.put('/profile', protect, uploadMiddleware.single('file'), updateUserProfile);
+    router.put('/profileimage', protect, uploadMiddleware.single('file'), uploadUserProfileImage);
 })();
 
 export default router;

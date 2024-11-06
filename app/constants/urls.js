@@ -1,4 +1,5 @@
-export const serverDomain = 'http://192.168.0.104:3000';
+export const serverDomain = 'https://screwbserver.lerry.site';
+//export const serverDomain = 'http://192.168.0.104:3000';
 
 export const urls = {
     signup: `${serverDomain}/api/users`,
@@ -11,4 +12,5 @@ export const urls = {
     reactions: `${serverDomain}/api/feedback/user`,
     postreactions: `${serverDomain}/api/feedback/post`,
     search: `${serverDomain}/api/videos/search`,
+    uploadchunkvideos: `${serverDomain}/api/posts/upload/video`,
 }

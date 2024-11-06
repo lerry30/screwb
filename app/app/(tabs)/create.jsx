@@ -3,12 +3,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useLayoutEffect } from 'react';
 import { Video, ResizeMode } from 'expo-av';
 import { authUserInput } from '@/utils/auth';
-import { sendForm } from '@/utils/send';
+import { sendJSON } from '@/utils/send';
 import { urls } from '@/constants/urls';
 import { getFromLocal, saveToLocal } from '@/utils/localStorage';
 import { useRouter } from 'expo-router';
 import { zUser } from '@/store/user';
 import { zPosts } from '@/store/posts';
+import { uploadInChunks } from '@/utils/uploadInChunks';
 
 import TitleFormat from '@/utils/titleFormat';
 import ErrorField from '@/components/ErrorField';
@@ -22,7 +23,7 @@ import * as DocumentPicker from 'expo-document-picker';
 const Create = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [video, setVideo] = useState({ name: '', uri: '', type: '' });
+    const [video, setVideo] = useState({ name: '', uri: '', type: '', size: 0 });
 
     const [error, setError] = useState({title: '', description: '', server: ''});
     const [loading, setLoading] = useState(false);
@@ -37,7 +38,7 @@ const Create = () => {
         if (!result.canceled) {
             //console.log(result.assets[0]);
             const { uri, name, size, mimeType } = result.assets[0];
-            setVideo({ name, uri, type: mimeType });
+            setVideo({ name, uri, type: mimeType, size });
         } else {
             setTimeout(() => {
                 setAlert(true);
@@ -58,14 +59,19 @@ const Create = () => {
 
             if(title.length > 30) throw new Error('Title is too long.');
             if(description.length > 80) throw new Error('Title is too long.');
-            if(!video?.uri) throw new Error('No video selected.');
+            if(!video.uri) throw new Error('No video selected.');
 
-            const form = new FormData();
-            form.append('title', TitleFormat(title));
-            form.append('description', TitleFormat(description));
-            form.append('file', video);
+            const fileType = video.type.split('/')[1];
+            const fileName = `${Date.now()}.${fileType}`;
 
-            const response = await sendForm(urls['createpost'], form, 'POST'); 
+            const data = {
+                title: TitleFormat(title),
+                description: TitleFormat(description),
+                filename: fileName,
+            }
+
+            await uploadInChunks(video, fileName);
+            const response = await sendJSON(urls['createpost'], data, 'POST'); 
             await saveToLocal('posts', [...postsData, response]);
             const {ok, message} = addNewPost(response);
             console.log(message);
@@ -75,7 +81,7 @@ const Create = () => {
 
             setTitle('');
             setDescription('');
-            setVideo({ name: '', uri: '', type: '' });
+            setVideo({ name: '', uri: '', type: '', size: 0 });
         } catch(error) {
             console.log(error?.message);
             const message = error?.message || 'There\'s something wrong. Please try again later.';
@@ -95,6 +101,7 @@ const Create = () => {
         return (
             <View className="flex-1 w-full h-screen flex justify-center items-center">
                 <ActivityIndicator size="large" color="#3345ee" />
+                <Text className="text-lg text-gray-100 font-pbold mt-4">Uploading...</Text>
             </View>
         )
     }

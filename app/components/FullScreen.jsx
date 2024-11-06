@@ -56,9 +56,8 @@ const FullScreen = ({videos, isPlaying, setIsPlaying, listKey=0, videoRefs, load
     }
 
     useLayoutEffect(() => {
-        console.log(height);
         return () => {
-            videoRefs.current = {};
+            videoRefs.current = null;
         }
     }, []);
 

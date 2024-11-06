@@ -8,12 +8,12 @@ export const upload = async (uploadsFolder) => {
     if(!exists) await mkdir(uploadRootPath);
     const storage = multer.diskStorage({
         destination: (req, file, cb) => {
-            cb(null, uploadRootPath);  // Assuming __dirname is /backend
+            cb(null, uploadRootPath);
         },
         filename: (req, file, cb) => {
             cb(null, Date.now() + getFileExt(file.originalname));  // Example for setting a unique filename
         }
     });
 
-    return multer({ storage: storage });
+    return multer({ storage: storage, limits: {fileSize: 10 * 1024 * 1024} });
 }
